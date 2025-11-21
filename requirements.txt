@@ -1,0 +1,6 @@
+dbt-bigquery
+pandas 
+pandas-gbq 
+google-cloud-bigquery 
+google-auth
+dotenv

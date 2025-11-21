@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name:   json_dbt
+    database: gen-lang-client-0721975631
+    tables:
+      - name: tabla_base
+     
+      
+
