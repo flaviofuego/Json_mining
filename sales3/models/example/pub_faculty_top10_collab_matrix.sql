@@ -55,12 +55,27 @@ SELECT
     
     MAX(CASE WHEN tcr.rank = 3 THEN tcr.coauthor_faculty END) AS top_collab_faculty_3_id,
     MAX(CASE WHEN tcr.rank = 3 THEN tcr.collab_count END) AS top_collab_faculty_3_count,
+
+    MAX(CASE WHEN tcr.rank = 4 THEN tcr.coauthor_faculty END) AS top_collab_faculty_4_id,
+    MAX(CASE WHEN tcr.rank = 4 THEN tcr.collab_count END) AS top_collab_faculty_4_count,
+    MAX(CASE WHEN tcr.rank = 5 THEN tcr.coauthor_faculty END) AS top_collab_faculty_5_id,
+    MAX(CASE WHEN tcr.rank = 5 THEN tcr.collab_count END) AS top_collab_faculty_5_count,
+    MAX(CASE WHEN tcr.rank = 6 THEN tcr.coauthor_faculty END) AS top_collab_faculty_6_id,
+    MAX(CASE WHEN tcr.rank = 6 THEN tcr.collab_count END) AS top_collab_faculty_6_count,
+    MAX(CASE WHEN tcr.rank = 7 THEN tcr.coauthor_faculty END) AS top_collab_faculty_7_id,
+    MAX(CASE WHEN tcr.rank = 7 THEN tcr.collab_count END) AS top_collab_faculty_7_count,
+    MAX(CASE WHEN tcr.rank = 8 THEN tcr.coauthor_faculty END) AS top_collab_faculty_8_id,
+    MAX(CASE WHEN tcr.rank = 8 THEN tcr.collab_count END) AS top_collab_faculty_8_count,
+    MAX(CASE WHEN tcr.rank = 9 THEN tcr.coauthor_faculty END) AS top_collab_faculty_9_id,
+    MAX(CASE WHEN tcr.rank = 9 THEN tcr.collab_count END) AS top_collab_faculty_9_count,
+    MAX(CASE WHEN tcr.rank = 10 THEN tcr.coauthor_faculty END) AS top_collab_faculty_10_id,
+    MAX(CASE WHEN tcr.rank = 10 THEN tcr.collab_count END) AS top_collab_faculty_10_count,
     
     CURRENT_TIMESTAMP() AS created_at
     
 FROM top10_faculty t10
 LEFT JOIN top_collabs_ranked tcr
-    ON t10.facultyid = tcr.facultyid_principal AND tcr.rank <= 3
+    ON t10.facultyid = tcr.facultyid_principal AND tcr.rank <= 10
 GROUP BY 
     t10.facultyid, 
     t10.total_publications, 
