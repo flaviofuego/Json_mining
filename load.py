@@ -37,5 +37,5 @@ print(f"Total de archivos procesados: {len(df)}")
 print(df.head())
 
 # Cargar a BigQuery
-to_gbq(df, 'json_dbt.tabla_base', project_id='gen-lang-client-0721975631', if_exists='replace')
+to_gbq(df, 'M9.tabla_base', project_id='mineria-msc', if_exists='replace', location='US')
 print("Datos cargados exitosamente a BigQuery") 
