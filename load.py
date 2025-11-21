@@ -33,9 +33,9 @@ df = pd.DataFrame({
 })
 
 
-""" print(f"Total de archivos procesados: {len(df)}")
+print(f"Total de archivos procesados: {len(df)}")
 print(df.head())
 
 # Cargar a BigQuery
 to_gbq(df, 'json_dbt.tabla_base', project_id='gen-lang-client-0721975631', if_exists='replace')
-print("Datos cargados exitosamente a BigQuery") """
+print("Datos cargados exitosamente a BigQuery") 

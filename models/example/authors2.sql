@@ -1,13 +1,9 @@
-{{ config(
-    materialized='table'
-) }}
-
 WITH src AS (
   SELECT
     activityid,
     raw_json,
     JSON_EXTRACT(raw_json, '$.coauthors') AS coauthors_obj
-  FROM {{ ref('stg_pub_activities_raw') }}  
+  FROM {{ ref('stg_pub_activities_raw')}}  
 ),
 
 -- 1. Extraemos las claves del objeto coauthors (164181, 164182, etc.)
@@ -18,7 +14,6 @@ keys AS (
     REGEXP_EXTRACT_ALL(CAST(coauthors_obj AS STRING), r'"(\d+)"') AS key_list
   FROM src
   WHERE coauthors_obj IS NOT NULL
-    AND CAST(coauthors_obj AS STRING) != 'null'
 ),
 
 -- 2. Convertimos el objeto completo en un array JSON válido eliminando las claves
@@ -51,32 +46,17 @@ exploded AS (
 SELECT
   activityid,
   SAFE_CAST(coauthor_index AS INT64) AS coauthor_index,
-  
-  -- Campos del coautor
-  SAFE_CAST(JSON_VALUE(element, '$.authorid') AS INT64) AS authorid,
-  JSON_VALUE(element, '$.firstname') AS first_name,
-  JSON_VALUE(element, '$.middleinitial') AS middle_initial,
-  JSON_VALUE(element, '$.lastname') AS last_name,
-  JSON_VALUE(element, '$.percentcontribution') AS percent_contribution,
-  SAFE_CAST(JSON_VALUE(element, '$.sameschoolflag') AS BOOL) AS same_school,
-  JSON_VALUE(element, '$.facultyid') AS coauthor_facultyid,
-  SAFE_CAST(JSON_VALUE(element, '$.scholarlyactivityid') AS INT64) AS scholarly_activity_id,
-  
-  -- ID único para el coautor (requerido para los siguientes puntos)
-  COALESCE(
-    JSON_VALUE(element, '$.facultyid'),
-    CAST(SAFE_CAST(JSON_VALUE(element, '$.authorid') AS INT64) AS STRING),
-    CONCAT(
-      COALESCE(JSON_VALUE(element, '$.firstname'), 'Unknown'),
-      '_',
-      COALESCE(JSON_VALUE(element, '$.lastname'), 'Unknown')
-    )
-  ) AS coauthor_id,
-  
-  element AS coauthor_raw_json,
-  CURRENT_TIMESTAMP() AS created_at
+
+  SAFE_CAST(JSON_VALUE(element, '$.authorid') AS INT64)               AS authorid,
+  JSON_VALUE(element, '$.firstname')                                 AS firstname,
+  JSON_VALUE(element, '$.middleinitial')                             AS middleinitial,
+  JSON_VALUE(element, '$.lastname')                                  AS lastname,
+  JSON_VALUE(element, '$.percentcontribution')                       AS percentcontribution,
+  SAFE_CAST(JSON_VALUE(element, '$.sameschoolflag') AS INT64)        AS sameschoolflag,
+  JSON_VALUE(element, '$.facultyid')                                 AS coauthor_facultyid,
+  SAFE_CAST(JSON_VALUE(element, '$.scholarlyactivityid') AS INT64)   AS scholarlyactivityid,
+
+  element AS coauthor_raw_json
 
 FROM exploded
-WHERE JSON_VALUE(element, '$.firstname') IS NOT NULL 
-   OR JSON_VALUE(element, '$.lastname') IS NOT NULL
 ORDER BY activityid, coauthor_index

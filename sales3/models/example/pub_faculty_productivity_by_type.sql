@@ -1,36 +1,34 @@
-WITH main_authors AS (
-  SELECT DISTINCT
-    CAST(activityid AS STRING) AS activityid,
-    coauthor_facultyid AS facultyid
-  FROM {{ ref('pub_activity_authors')}}  
-),
 
-activity_types AS (
-  SELECT
-    CAST(activityid AS STRING) AS activityid,
-    type AS publication_type
-  FROM {{ ref('pub_activity_authors')}}  
-),
 
-joined AS (
-  SELECT
-    m.facultyid,
-    a.publication_type
-  FROM main_authors m
-  LEFT JOIN activity_types a USING (activityid)
-),
-
-counts AS (
+WITH faculty_publications AS (
   SELECT
     facultyid,
-    publication_type,
+    type AS publication_type,
     COUNT(*) AS total_publications
-  FROM joined
-  GROUP BY facultyid, publication_type
+  FROM {{ ref('pub_activities_wide') }}
+  WHERE facultyid IS NOT NULL
+    AND type IS NOT NULL
+  GROUP BY facultyid, type
 )
 
-SELECT *
-FROM counts
+SELECT 
+  *,
+  -- Calcular el total sumando todas las columnas
+  COALESCE(`Artistic Works and Performances`, 0) +
+  COALESCE(Book, 0) +
+  COALESCE(`Case Study`, 0) +
+  COALESCE(Chapter, 0) +
+  COALESCE(`Conference Proceeding`, 0) +
+  COALESCE(`Creative Publications`, 0) +
+  COALESCE(`Instructional Publications`, 0) +
+  COALESCE(`Journal Publication`, 0) +
+  COALESCE(`Media Contribution`, 0) +
+  COALESCE(`Other Works`, 0) +
+  COALESCE(Patent, 0) +
+  COALESCE(`Poster Presentation`, 0) +
+  COALESCE(Presentation, 0) +
+  COALESCE(Review, 0) AS total_publications
+FROM faculty_publications
 PIVOT (
   SUM(total_publications)
   FOR publication_type IN (
@@ -50,4 +48,4 @@ PIVOT (
     'Review'
   )
 )
-ORDER BY facultyid;
+ORDER BY total_publications DESC
